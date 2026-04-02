@@ -13,7 +13,7 @@ const SPARKS = Array.from({ length: 90 }, (_, i) => ({
 
 // Magic circle SVG component — pentagram-in-ring design
 // outerClass spins the outer ring+ticks; innerClass counter-spins the pentagram
-function MagicCircle({ r, stroke = '#c8200a', strokeWidth = 1.4, outerClass = '', innerClass = '' }) {
+function MagicCircle({ r, stroke = '#ff8844', strokeWidth = 1.8, outerClass = '', innerClass = '' }) {
   const star = Array.from({ length: 5 }, (_, i) => {
     const a = (i * 4 * Math.PI) / 5 - Math.PI / 2
     return `${(r * 0.66 * Math.cos(a)).toFixed(2)},${(r * 0.66 * Math.sin(a)).toFixed(2)}`
@@ -63,8 +63,75 @@ function MagicCircle({ r, stroke = '#c8200a', strokeWidth = 1.4, outerClass = ''
   )
 }
 
+// SVG-space centres + influence radius for each circle (same order as circleRefs)
+const CIRCLE_DATA = [
+  { x: 310,  y: 260, r: 295 },
+  { x: 1580, y: 840, r: 210 },
+  { x: 1430, y: 195, r: 170 },
+  { x: 1650, y: 200, r: 95  },
+]
+
 export default function App() {
-  const sceneRef = useRef(null)
+  const sceneRef      = useRef(null)
+  const circleRefs    = useRef([])
+  const circleIntensity = useRef([0, 0, 0, 0])
+
+  // Fire glow: cursor proximity → per-circle RGB drop-shadow
+  useEffect(() => {
+    const mouse = { x: -9999, y: -9999 }
+    const onMove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY }
+    window.addEventListener('mousemove', onMove)
+
+    let raf
+    const tick = () => {
+      const svgX = (mouse.x / window.innerWidth)  * 1920
+      const svgY = (mouse.y / window.innerHeight) * 1080
+
+      CIRCLE_DATA.forEach(({ x, y, r }, i) => {
+        const el = circleRefs.current[i]
+        if (!el) return
+
+        const dist   = Math.hypot(svgX - x, svgY - y)
+        const target = Math.max(0, 1 - dist / (r + 520))
+        // Smooth lerp toward target intensity
+        const cur  = circleIntensity.current[i]
+        const next = cur + (target - cur) * 0.09
+        circleIntensity.current[i] = next
+
+        if (next < 0.015) {
+          el.style.filter = ''
+          return
+        }
+
+        const t  = next
+        const t2 = t * t
+        // Fire palette: deep red → orange → amber → white-yellow at peak
+        const g      = Math.round(t2 * 210)
+        const b      = Math.round(t2 * t * 55)
+        const gInner = Math.min(255, g + 90)
+        const blur1  = (16 + t * 75).toFixed(0)
+        const blur2  = (t * 55).toFixed(0)
+        const blur3  = (t * t * 28).toFixed(0)
+        const a1     = (0.50 + t * 0.50).toFixed(2)
+        const a2     = (t * 0.70).toFixed(2)
+        const a3     = (t2 * 0.55).toFixed(2)
+
+        el.style.filter = [
+          `drop-shadow(0 0 ${blur1}px rgba(255,${g},${b},${a1}))`,
+          `drop-shadow(0 0 ${blur2}px rgba(255,${gInner},0,${a2}))`,
+          `drop-shadow(0 0 ${blur3}px rgba(255,235,120,${a3}))`,
+        ].join(' ')
+      })
+
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
 
   useEffect(() => {
     if (!sceneRef.current) return
@@ -115,11 +182,11 @@ export default function App() {
         {/* Layer 3 — Large back magic circles */}
         <li data-depth="0.42" className="layer">
           <svg className="lsvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <g transform="translate(310,260)" className="circle-wrap circle-pulse-a">
+            <g ref={el => { circleRefs.current[0] = el }} transform="translate(310,260)" className="circle-wrap circle-pulse-a">
               <MagicCircle r={295} outerClass="spin-cw-slow" innerClass="spin-ccw-slow" />
             </g>
-            <g transform="translate(1580,840)" className="circle-wrap circle-pulse-b">
-              <MagicCircle r={210} outerClass="spin-ccw-slow" innerClass="spin-cw-med" />
+            <g ref={el => { circleRefs.current[1] = el }} transform="translate(1580,840)" className="circle-wrap circle-pulse-b">
+              <MagicCircle r={210} stroke="#ff9955" outerClass="spin-ccw-slow" innerClass="spin-cw-med" />
             </g>
           </svg>
         </li>
@@ -127,8 +194,8 @@ export default function App() {
         {/* Layer 4 — Mid magic circle (top-right) */}
         <li data-depth="0.62" className="layer">
           <svg className="lsvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <g transform="translate(1430,195)" className="circle-wrap circle-pulse-c">
-              <MagicCircle r={170} stroke="#e03010" strokeWidth={1.2} outerClass="spin-cw-med" innerClass="spin-ccw-fast" />
+            <g ref={el => { circleRefs.current[2] = el }} transform="translate(1430,195)" className="circle-wrap circle-pulse-c">
+              <MagicCircle r={170} stroke="#ffaa44" strokeWidth={1.6} outerClass="spin-cw-med" innerClass="spin-ccw-fast" />
             </g>
           </svg>
         </li>
@@ -137,8 +204,8 @@ export default function App() {
         <li data-depth="0.85" className="layer">
           <div className="ground-glow" />
           <svg className="lsvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <g transform="translate(1650,200)" className="circle-wrap circle-pulse-d">
-              <MagicCircle r={95} stroke="#ff3318" strokeWidth={1.0} outerClass="spin-ccw-fast" innerClass="spin-cw-fast" />
+            <g ref={el => { circleRefs.current[3] = el }} transform="translate(1650,200)" className="circle-wrap circle-pulse-d">
+              <MagicCircle r={95} stroke="#ffcc66" strokeWidth={1.5} outerClass="spin-ccw-fast" innerClass="spin-cw-fast" />
             </g>
           </svg>
         </li>
