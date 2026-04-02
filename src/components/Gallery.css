@@ -1,0 +1,14 @@
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 32px;
+  padding: 48px 40px;
+  justify-items: center;
+}
+
+@media (max-width: 480px) {
+  .gallery {
+    padding: 24px 16px;
+    gap: 20px;
+  }
+}

@@ -1,0 +1,161 @@
+/* ─── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Root: force full viewport ───────────────────────────── */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #02010a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ─── Page wrapper ─────────────────────────────────────────── */
+.page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #02010a;
+}
+
+/* ─── Parallax scene (the <ul>) ───────────────────────────── */
+.scene {
+  list-style: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── Each layer (<li>) ────────────────────────────────────── */
+/*   parallax-js moves these elements with transform           */
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Layer content — slightly oversized so edges don't show      */
+/* when parallax-js translates the parent <li>                 */
+.layer > * {
+  position: absolute;
+  top: -6%;
+  left: -6%;
+  width: 112%;
+  height: 112%;
+}
+
+/* SVG layers */
+.lsvg {
+  display: block;
+}
+
+/* ─── Visual layers ────────────────────────────────────────── */
+
+/* Sky — deep space gradient with purple nebula glow */
+.sky {
+  background:
+    radial-gradient(ellipse 80% 60% at 76% 14%, #3a1a7a 0%, #18083c 28%, #060218 65%, #020109 100%);
+}
+
+/* Moon glow */
+.moon-wrap {
+  /* inherits oversized position from .layer > * */
+}
+
+.moon {
+  position: absolute !important;
+  top: 13% !important;
+  right: 19% !important;
+  left: auto !important;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 38%, #fefae8, #d4b96a);
+  box-shadow:
+    0 0 28px 10px rgba(255, 245, 200, 0.35),
+    0 0 90px 34px rgba(255, 220, 110, 0.12),
+    0 0 180px 70px rgba(160, 100, 40, 0.06);
+}
+
+/* Fog — soft purple haze from ground level */
+.fog {
+  background: linear-gradient(
+    to top,
+    rgba(110, 70, 190, 0.28) 0%,
+    rgba(80, 50, 150, 0.10) 20%,
+    transparent 48%
+  );
+  pointer-events: none;
+}
+
+/* Dark foreground ground strip */
+.ground {
+  background: linear-gradient(to top, #010008 60%, #04020f 100%);
+  top: auto !important;
+  bottom: -6% !important;
+  height: 14% !important;
+}
+
+/* ─── Vignette ─────────────────────────────────────────────── */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    rgba(0, 0, 10, 0.75) 100%
+  );
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ─── Title overlay ────────────────────────────────────────── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  pointer-events: none;
+  text-align: center;
+  padding: 0 24px;
+  gap: 16px;
+}
+
+.overlay__eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(180, 140, 255, 0.55);
+}
+
+.overlay__title {
+  font-size: clamp(3.2rem, 9vw, 7.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  background: linear-gradient(155deg, #ffffff 25%, #c8a4ff 60%, #7040d0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 50px rgba(130, 70, 255, 0.45));
+}
+
+.overlay__subtitle {
+  font-size: clamp(0.82rem, 1.8vw, 1.05rem);
+  color: rgba(190, 165, 255, 0.4);
+  letter-spacing: 0.07em;
+}
+
