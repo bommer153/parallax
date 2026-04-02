@@ -13,7 +13,7 @@ html, body, #root {
 }
 
 body {
-  background: #02010a;
+  background: #0a0101;
   font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
@@ -23,7 +23,7 @@ body {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: #02010a;
+  background: #0a0101;
 }
 
 /* ─── Parallax scene (the <ul>) ───────────────────────────── */
@@ -61,49 +61,37 @@ body {
 
 /* ─── Visual layers ────────────────────────────────────────── */
 
-/* Sky — deep space gradient with purple nebula glow */
-.sky {
+/* Rin wallpaper — full-cover background */
+.rin-bg {
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* Crimson atmospheric overlay — deepens the red mid-tones */
+.atmos {
   background:
-    radial-gradient(ellipse 80% 60% at 76% 14%, #3a1a7a 0%, #18083c 28%, #060218 65%, #020109 100%);
+    radial-gradient(ellipse 70% 55% at 50% 40%, rgba(140, 10, 10, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 90% 40% at 30% 80%, rgba(80, 5, 5, 0.22) 0%, transparent 60%);
+  pointer-events: none;
+  animation: atmos-breathe 6s ease-in-out infinite;
 }
 
-/* Moon glow */
-.moon-wrap {
-  /* inherits oversized position from .layer > * */
-}
-
-.moon {
-  position: absolute !important;
-  top: 13% !important;
-  right: 19% !important;
-  left: auto !important;
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 38% 38%, #fefae8, #d4b96a);
-  box-shadow:
-    0 0 28px 10px rgba(255, 245, 200, 0.35),
-    0 0 90px 34px rgba(255, 220, 110, 0.12),
-    0 0 180px 70px rgba(160, 100, 40, 0.06);
-}
-
-/* Fog — soft purple haze from ground level */
-.fog {
+/* Ground glow — warm red bloom along bottom edge */
+.ground-glow {
+  position: absolute;
+  top: -6%;
+  left: -6%;
+  width: 112%;
+  height: 112%;
   background: linear-gradient(
     to top,
-    rgba(110, 70, 190, 0.28) 0%,
-    rgba(80, 50, 150, 0.10) 20%,
-    transparent 48%
+    rgba(180, 30, 10, 0.30) 0%,
+    rgba(120, 15, 5, 0.12) 18%,
+    transparent 40%
   );
   pointer-events: none;
-}
-
-/* Dark foreground ground strip */
-.ground {
-  background: linear-gradient(to top, #010008 60%, #04020f 100%);
-  top: auto !important;
-  bottom: -6% !important;
-  height: 14% !important;
+  animation: ground-pulse 4s ease-in-out infinite;
 }
 
 /* ─── Vignette ─────────────────────────────────────────────── */
@@ -112,8 +100,8 @@ body {
   inset: 0;
   background: radial-gradient(
     ellipse at center,
-    transparent 45%,
-    rgba(0, 0, 10, 0.75) 100%
+    transparent 38%,
+    rgba(10, 0, 0, 0.80) 100%
   );
   pointer-events: none;
   z-index: 20;
@@ -138,7 +126,7 @@ body {
   font-size: 0.7rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: rgba(180, 140, 255, 0.55);
+  color: rgba(255, 160, 100, 0.65);
 }
 
 .overlay__title {
@@ -146,16 +134,88 @@ body {
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1;
-  background: linear-gradient(155deg, #ffffff 25%, #c8a4ff 60%, #7040d0 100%);
+  background: linear-gradient(155deg, #ffffff 20%, #ff9070 55%, #cc2200 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 50px rgba(130, 70, 255, 0.45));
+  animation: title-glow 2.8s ease-in-out infinite;
 }
 
 .overlay__subtitle {
   font-size: clamp(0.82rem, 1.8vw, 1.05rem);
-  color: rgba(190, 165, 255, 0.4);
+  color: rgba(255, 180, 140, 0.45);
   letter-spacing: 0.07em;
+}
+
+/* ─── Spin animations (magic circles) ─────────────────────── */
+.spin-cw-slow, .spin-ccw-slow,
+.spin-cw-med,  .spin-ccw-med,
+.spin-cw-fast, .spin-ccw-fast {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes spin-cw  { to { transform: rotate( 360deg); } }
+@keyframes spin-ccw { to { transform: rotate(-360deg); } }
+
+.spin-cw-slow  { animation: spin-cw  24s linear infinite; }
+.spin-ccw-slow { animation: spin-ccw 32s linear infinite; }
+.spin-cw-med   { animation: spin-cw  14s linear infinite; }
+.spin-ccw-med  { animation: spin-ccw 18s linear infinite; }
+.spin-cw-fast  { animation: spin-cw   7s linear infinite; }
+.spin-ccw-fast { animation: spin-ccw  9s linear infinite; }
+
+/* ─── Circle glow pulse ────────────────────────────────────── */
+@keyframes circle-glow-a {
+  0%, 100% { filter: drop-shadow(0 0  6px rgba(200, 40, 10, 0.30)); opacity: 0.42; }
+  50%       { filter: drop-shadow(0 0 22px rgba(255, 70, 20, 0.80)); opacity: 0.72; }
+}
+@keyframes circle-glow-b {
+  0%, 100% { filter: drop-shadow(0 0  5px rgba(180, 30,  8, 0.22)); opacity: 0.28; }
+  50%       { filter: drop-shadow(0 0 18px rgba(240, 60, 15, 0.65)); opacity: 0.54; }
+}
+@keyframes circle-glow-c {
+  0%, 100% { filter: drop-shadow(0 0  8px rgba(220, 50, 10, 0.38)); opacity: 0.48; }
+  50%       { filter: drop-shadow(0 0 26px rgba(255, 80, 20, 0.90)); opacity: 0.80; }
+}
+@keyframes circle-glow-d {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 50, 10, 0.55)); opacity: 0.58; }
+  50%       { filter: drop-shadow(0 0 34px rgba(255,100, 30, 1.00)); opacity: 0.95; }
+}
+
+.circle-pulse-a { animation: circle-glow-a 4.0s ease-in-out infinite; }
+.circle-pulse-b { animation: circle-glow-b 5.5s ease-in-out infinite 1.4s; }
+.circle-pulse-c { animation: circle-glow-c 3.0s ease-in-out infinite 0.8s; }
+.circle-pulse-d { animation: circle-glow-d 2.2s ease-in-out infinite 0.3s; }
+
+/* ─── Ember spark drift ────────────────────────────────────── */
+.ember {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ember-float 3s ease-in-out infinite alternate;
+}
+
+@keyframes ember-float {
+  from { transform: translateY(0px)   scale(1.0); opacity: 0.20; }
+  to   { transform: translateY(-16px) scale(1.7); opacity: 0.80; }
+}
+
+/* ─── Atmospheric breathe ──────────────────────────────────── */
+@keyframes atmos-breathe {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 1.00; }
+}
+
+/* ─── Ground glow pulse ────────────────────────────────────── */
+@keyframes ground-pulse {
+  0%, 100% { opacity: 0.65; }
+  50%       { opacity: 1.00; }
+}
+
+/* ─── Title glow flicker ───────────────────────────────────── */
+@keyframes title-glow {
+  0%, 100% { filter: drop-shadow(0 0  50px rgba(200, 40, 10, 0.55)); }
+  40%       { filter: drop-shadow(0 0  90px rgba(255, 65, 15, 0.95)) drop-shadow(0 0 18px rgba(255, 210, 130, 0.28)); }
+  65%       { filter: drop-shadow(0 0  60px rgba(220, 45, 10, 0.70)); }
 }
 

@@ -1,33 +1,67 @@
 import { useEffect, useRef } from 'react'
 import Parallax from 'parallax-js'
+import rinImg from './assets/rin.jpg'
 import './App.css'
 
-// Deterministic star field via golden-angle spiral
-const STARS = Array.from({ length: 220 }, (_, i) => ({
+// Deterministic ember/spark particles
+const SPARKS = Array.from({ length: 90 }, (_, i) => ({
   cx: Math.round((i * 137.508) % 1920),
-  cy: Math.round((i * 97.333) % 680),
-  r: +(0.4 + (i % 5) * 0.38).toFixed(1),
-  opacity: +(0.3 + (i % 9) * 0.076).toFixed(2),
+  cy: Math.round((i * 97.333) % 1080),
+  r: +(0.6 + (i % 5) * 0.55).toFixed(1),
+  opacity: +(0.12 + (i % 8) * 0.08).toFixed(2),
 }))
 
-// Pine-tree silhouette path — deterministic, built from sin/cos waves
-function buildTreePath() {
-  const parts = []
-  const baseY = 835
-  let x = -40
-  while (x < 1960) {
-    const h = 100 + Math.sin(x * 0.038) * 58 + Math.cos(x * 0.022) * 38
-    const w = 46 + Math.sin(x * 0.075) * 13
-    const tx = x + w / 2
-    const ty = baseY - h
-    parts.push(`M${x.toFixed(0)},${baseY} L${(x + w).toFixed(0)},${baseY} L${tx.toFixed(0)},${ty.toFixed(0)} Z`)
-    x += w * 0.6
-  }
-  parts.push(`M0,${baseY} L1920,${baseY} L1920,1080 L0,1080 Z`)
-  return parts.join(' ')
-}
+// Magic circle SVG component — pentagram-in-ring design
+// outerClass spins the outer ring+ticks; innerClass counter-spins the pentagram
+function MagicCircle({ r, stroke = '#c8200a', strokeWidth = 1.4, outerClass = '', innerClass = '' }) {
+  const star = Array.from({ length: 5 }, (_, i) => {
+    const a = (i * 4 * Math.PI) / 5 - Math.PI / 2
+    return `${(r * 0.66 * Math.cos(a)).toFixed(2)},${(r * 0.66 * Math.sin(a)).toFixed(2)}`
+  }).join(' ')
 
-const TREE_PATH = buildTreePath()
+  const ticks = Array.from({ length: 32 }, (_, i) => {
+    const a = (i * Math.PI * 2) / 32
+    const long = i % 4 === 0
+    const r1 = r * (long ? 0.86 : 0.9)
+    const r2 = r * 0.97
+    return (
+      <line
+        key={i}
+        x1={(Math.cos(a) * r1).toFixed(2)} y1={(Math.sin(a) * r1).toFixed(2)}
+        x2={(Math.cos(a) * r2).toFixed(2)} y2={(Math.sin(a) * r2).toFixed(2)}
+        strokeWidth={long ? strokeWidth * 1.4 : strokeWidth * 0.7}
+      />
+    )
+  })
+
+  return (
+    <g fill="none" stroke={stroke} strokeWidth={strokeWidth}>
+      {/* Outer ring + ticks — rotates CW */}
+      <g className={outerClass}>
+        <circle r={r} />
+        <circle r={r * 0.82} strokeWidth={strokeWidth * 0.5} />
+        {ticks}
+        {Array.from({ length: 8 }, (_, i) => {
+          const a = (i * Math.PI * 2) / 8
+          return (
+            <line
+              key={i}
+              x1={(Math.cos(a) * r * 0.66).toFixed(2)} y1={(Math.sin(a) * r * 0.66).toFixed(2)}
+              x2={(Math.cos(a) * r * 0.82).toFixed(2)} y2={(Math.sin(a) * r * 0.82).toFixed(2)}
+              strokeWidth={strokeWidth * 0.6}
+            />
+          )
+        })}
+      </g>
+      {/* Inner pentagram — counter-rotates CCW */}
+      <g className={innerClass}>
+        <circle r={r * 0.66} strokeWidth={strokeWidth * 0.8} />
+        <circle r={r * 0.22} />
+        <polygon points={star} />
+      </g>
+    </g>
+  )
+}
 
 export default function App() {
   const sceneRef = useRef(null)
@@ -35,10 +69,10 @@ export default function App() {
   useEffect(() => {
     if (!sceneRef.current) return
     const parallax = new Parallax(sceneRef.current, {
-      scalarX: 14,
-      scalarY: 10,
-      frictionX: 0.07,
-      frictionY: 0.07,
+      scalarX: 12,
+      scalarY: 8,
+      frictionX: 0.08,
+      frictionY: 0.08,
     })
     return () => parallax.destroy()
   }, [])
@@ -47,72 +81,66 @@ export default function App() {
     <div className="page">
       <ul ref={sceneRef} className="scene">
 
-        {/* Layer 0 — Night sky */}
+        {/* Layer 0 — Rin Tohsaka wallpaper */}
         <li data-depth="0.0" className="layer">
-          <div className="sky" />
+          <div className="rin-bg" style={{ backgroundImage: `url(${rinImg})` }} />
         </li>
 
-        {/* Layer 1 — Stars */}
-        <li data-depth="0.1" className="layer">
+        {/* Layer 1 — Crimson atmospheric glow */}
+        <li data-depth="0.12" className="layer">
+          <div className="atmos" />
+        </li>
+
+        {/* Layer 2 — Floating ember sparks */}
+        <li data-depth="0.28" className="layer">
           <svg className="lsvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            {STARS.map((s, i) => (
-              <circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill="white" opacity={s.opacity} />
+            {SPARKS.map((s, i) => (
+              <circle
+                key={i}
+                className="ember"
+                cx={s.cx}
+                cy={s.cy}
+                r={s.r}
+                fill="#ff5522"
+                opacity={s.opacity}
+                style={{
+                  animationDelay: `${((i * 0.23) % 4).toFixed(2)}s`,
+                  animationDuration: `${(2.4 + (i % 7) * 0.38).toFixed(1)}s`,
+                }}
+              />
             ))}
           </svg>
         </li>
 
-        {/* Layer 2 — Moon */}
-        <li data-depth="0.18" className="layer">
-          <div className="moon-wrap">
-            <div className="moon" />
-          </div>
-        </li>
-
-        {/* Layer 3 — Far mountains */}
-        <li data-depth="0.28" className="layer">
+        {/* Layer 3 — Large back magic circles */}
+        <li data-depth="0.42" className="layer">
           <svg className="lsvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <defs>
-              <linearGradient id="gFar" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#201050" />
-                <stop offset="100%" stopColor="#0b071e" />
-              </linearGradient>
-            </defs>
-            <polygon fill="url(#gFar)"
-              points="0,1080 0,545 140,395 275,458 415,272 545,368 675,188 808,328 952,152 1068,294 1198,168 1342,314 1492,214 1652,358 1795,238 1920,325 1920,1080"
-            />
+            <g transform="translate(310,260)" className="circle-wrap circle-pulse-a">
+              <MagicCircle r={295} outerClass="spin-cw-slow" innerClass="spin-ccw-slow" />
+            </g>
+            <g transform="translate(1580,840)" className="circle-wrap circle-pulse-b">
+              <MagicCircle r={210} outerClass="spin-ccw-slow" innerClass="spin-cw-med" />
+            </g>
           </svg>
         </li>
 
-        {/* Layer 4 — Near mountains */}
-        <li data-depth="0.5" className="layer">
+        {/* Layer 4 — Mid magic circle (top-right) */}
+        <li data-depth="0.62" className="layer">
           <svg className="lsvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <defs>
-              <linearGradient id="gNear" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0e0820" />
-                <stop offset="100%" stopColor="#040210" />
-              </linearGradient>
-            </defs>
-            <polygon fill="url(#gNear)"
-              points="0,1080 0,648 195,515 375,588 548,435 715,518 882,378 1032,475 1185,412 1362,538 1522,440 1695,565 1848,475 1920,535 1920,1080"
-            />
+            <g transform="translate(1430,195)" className="circle-wrap circle-pulse-c">
+              <MagicCircle r={170} stroke="#e03010" strokeWidth={1.2} outerClass="spin-cw-med" innerClass="spin-ccw-fast" />
+            </g>
           </svg>
         </li>
 
-        {/* Layer 5 — Pine tree silhouette */}
-        <li data-depth="0.75" className="layer">
+        {/* Layer 5 — Near foreground magic circle + glow pool */}
+        <li data-depth="0.85" className="layer">
+          <div className="ground-glow" />
           <svg className="lsvg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <path fill="#03020b" d={TREE_PATH} />
+            <g transform="translate(1650,200)" className="circle-wrap circle-pulse-d">
+              <MagicCircle r={95} stroke="#ff3318" strokeWidth={1.0} outerClass="spin-ccw-fast" innerClass="spin-cw-fast" />
+            </g>
           </svg>
-        </li>
-
-        {/* Layer 6 — Ground fog */}
-        <li data-depth="0.88" className="layer">
-          <div className="fog" />
-        </li>
-
-        {/* Layer 7 — Foreground ground */}
-        <li data-depth="1.0" className="layer">
-          <div className="ground" />
         </li>
 
       </ul>
@@ -120,11 +148,11 @@ export default function App() {
       {/* Vignette frame — doesn't move */}
       <div className="vignette" aria-hidden="true" />
 
-      {/* Title — above the scene, doesn't move */}
+      {/* Title overlay — above the scene, doesn't move */}
       <div className="overlay">
-        <p className="overlay__eyebrow">parallax · depth · motion</p>
-        <h1 className="overlay__title">Into the Night</h1>
-        <p className="overlay__subtitle">Move your cursor — feel the depth</p>
+        <p className="overlay__eyebrow">Fate / Stay Night</p>
+        <h1 className="overlay__title">Rin Tohsaka</h1>
+        <p className="overlay__subtitle">Move your cursor — feel the magic</p>
       </div>
     </div>
   )
