@@ -59,6 +59,32 @@ body {
   display: block;
 }
 
+/* ─── Lucide icon scatter layer ────────────────────────────── */
+/* Overrides .layer > * so icons sit flush in the viewport     */
+.icon-scatter {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+}
+
+.icon-float {
+  position: absolute;
+  display: block;
+  line-height: 0;
+  filter: drop-shadow(0 0 10px var(--glow, #ffaa44))
+          drop-shadow(0 0 24px var(--glow, #ffaa44));
+  animation: icon-drift var(--dur, 3s) ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes icon-drift {
+  from { transform: translateY(0)     rotate(-5deg) scale(1.00); opacity: 0.60; }
+  to   { transform: translateY(-18px) rotate( 6deg) scale(1.14); opacity: 1.00; }
+}
+
 /* ─── Visual layers ────────────────────────────────────────── */
 
 /* Rin wallpaper — full-cover background */

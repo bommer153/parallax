@@ -1,0 +1,102 @@
+/* ─── Velvet background ────────────────────────────────────── */
+.velvet-bg {
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* ─── Dark smoke atmosphere ────────────────────────────────── */
+.smoke-atmos {
+  background:
+    radial-gradient(ellipse 80% 60% at 55% 35%, rgba(25, 5, 5, 0.30) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 50% at 25% 85%, rgba(10, 5, 5, 0.42) 0%, transparent 55%);
+  pointer-events: none;
+  animation: smoke-breathe 7s ease-in-out infinite;
+}
+
+/* ─── Ground smoke ─────────────────────────────────────────── */
+.ground-smoke {
+  position: absolute;
+  top: -6%;
+  left: -6%;
+  width: 112%;
+  height: 112%;
+  background: linear-gradient(
+    to top,
+    rgba(5, 2, 2, 0.78) 0%,
+    rgba(18, 5, 5, 0.34) 22%,
+    transparent 48%
+  );
+  pointer-events: none;
+  animation: smoke-pulse 5s ease-in-out infinite;
+}
+
+/* ─── Ash / ember particles ────────────────────────────────── */
+.ash {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ash-drift 3s ease-in-out infinite alternate;
+}
+
+@keyframes ash-drift {
+  from { transform: translateY(0)     translateX(0)   scale(1.0); opacity: 0.15; }
+  to   { transform: translateY(-20px) translateX(5px) scale(1.6); opacity: 0.68; }
+}
+
+/* ─── Flame shapes ─────────────────────────────────────────── */
+.flame-outer,
+.flame-inner {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.flame-outer {
+  animation: flame-sway 0.9s ease-in-out infinite alternate;
+}
+
+.flame-inner {
+  animation: flame-sway-fast 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes flame-sway {
+  from { transform: scaleX(1.00) scaleY(1.00) skewX( 0deg); opacity: 0.58; }
+  to   { transform: scaleX(0.87) scaleY(1.09) skewX(-4deg); opacity: 0.85; }
+}
+
+@keyframes flame-sway-fast {
+  from { transform: scaleX(0.90) scaleY(1.06) skewX( 3deg); opacity: 0.82; }
+  to   { transform: scaleX(1.06) scaleY(0.95) skewX(-2deg); opacity: 1.00; }
+}
+
+/* ─── Atmosphere / ground keyframes ───────────────────────── */
+@keyframes smoke-breathe {
+  0%, 100% { opacity: 0.72; }
+  50%       { opacity: 1.00; }
+}
+
+@keyframes smoke-pulse {
+  0%, 100% { opacity: 0.58; }
+  50%       { opacity: 0.95; }
+}
+
+/* ─── Velvet title overrides ───────────────────────────────── */
+.velvet-eyebrow {
+  color: rgba(200, 110, 70, 0.72) !important;
+}
+
+.velvet-title {
+  background: linear-gradient(155deg, #ffffff 15%, #ff7744 48%, #7a0000 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  animation: velvet-title-glow 3.2s ease-in-out infinite !important;
+}
+
+.velvet-subtitle {
+  color: rgba(210, 130, 90, 0.50) !important;
+}
+
+@keyframes velvet-title-glow {
+  0%, 100% { filter: drop-shadow(0 0  50px rgba(160, 40, 10, 0.55)); }
+  42%       { filter: drop-shadow(0 0  90px rgba(255, 70, 15, 0.95)) drop-shadow(0 0 22px rgba(255, 180, 80, 0.30)); }
+  70%       { filter: drop-shadow(0 0  65px rgba(200, 50, 10, 0.75)); }
+}
