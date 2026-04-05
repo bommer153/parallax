@@ -248,7 +248,7 @@ export default function RinScene() {
       <div className="overlay">
         <p className="overlay__eyebrow">Fate / Stay Night</p>
         <h1 className="overlay__title">Rin Tohsaka</h1>
-        <p className="overlay__subtitle">Move your cursor — feel the magic</p>
+        <p className="overlay__subtitle">-ARK~</p>
       </div>
     </div>
   )
